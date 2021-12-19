@@ -1,46 +1,62 @@
 class Device {
-  constructor(deviceJSON, locationDataJSON) {
-    this.id = deviceJSON.id;
-    this.name = deviceJSON.name;
-    this.connected = "disconnected";
-    this.coords = {
-      lat: null,
-      lng: null,
+  static fromJSON(deviceJSON) {
+    return {
+      id: deviceJSON.id || "",
+      name: deviceJSON.name || "",
+      connected: Device.getConnection(deviceJSON),
     };
-    this.properties = this.getProperties(deviceJSON);
+  }
 
+  static fromLocationJSON(locationDataJSON) {
     const deviceLat = +locationDataJSON.lat || undefined;
     const deviceLon = +locationDataJSON.lon || undefined;
-
-    this.coords.lat = deviceLat;
-    this.coords.lng = deviceLon;
-    this.serviceType = locationDataJSON.serviceType || "GPS";
-    this.uncertainty = +locationDataJSON.uncertainty;
-
-    if (deviceLat && deviceLon) {
-      this.position = [deviceLat, deviceLon];
-    } else {
-      this.position = [];
-    }
-
-    this.locationUpdate = locationDataJSON.insertedAt || "N/A";
-    this.gps = this.coords;
-  }
-
-  static get dataMap() {
     return {
-      Humidity: {
-        appId: "HUMID",
-        unit: "%",
+      id: locationDataJSON.deviceId,
+      coords: {
+        lat: deviceLat,
+        lng: deviceLon,
       },
-      Temperature: {
-        appId: "TEMP",
-        unit: "°C",
-      },
+      serviceType: locationDataJSON.serviceType || "GPS",
+      uncertainty: +locationDataJSON.uncertainty || "N/A",
+      position: deviceLat && deviceLon ? [deviceLat, deviceLon] : [],
+      locationUpdate: locationDataJSON.insertedAt || "N/A",
     };
   }
 
-  getProperties(data) {
+  static fromDeviceLocationJSON(deviceJSON, locationDataJSON) {
+    const deviceLat = +locationDataJSON.lat || undefined;
+    const deviceLon = +locationDataJSON.lon || undefined;
+    return {
+      id: deviceJSON.id,
+      name: deviceJSON.name,
+      coords: {
+        lat: deviceLat,
+        lng: deviceLon,
+      },
+      connected: Device.getConnection(deviceJSON),
+      properties: Device.getProperties(deviceJSON),
+      serviceType: locationDataJSON.serviceType || "GPS",
+      uncertainty: +locationDataJSON.uncertainty || "N/A",
+      position: deviceLat && deviceLon ? [deviceLat, deviceLon] : [],
+      locationUpdate: locationDataJSON.insertedAt || "N/A",
+    };
+  }
+
+  static getConnection(deviceJSON) {
+    if (deviceJSON && deviceJSON.state && deviceJSON.state.reported) {
+      const isConnected_LEGACY_FIRMWARE = !!deviceJSON.state.reported.connected;
+      const isConnected_UPDATED_FIRMWARE =
+        deviceJSON.state.reported.connection &&
+        deviceJSON.state.reported.connection.status === "connected";
+
+      if (isConnected_LEGACY_FIRMWARE || isConnected_UPDATED_FIRMWARE) {
+        return "connected";
+      }
+    }
+    return "disconnected";
+  }
+
+  static getProperties(data) {
     // old firmware uses connected field
     // new firmware uses connection field with a status key value pair
     if (data && data.state && data.state.reported) {
