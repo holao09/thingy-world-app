@@ -19,6 +19,9 @@ const handleEvent = (
   return handler;
 };
 
+const pollingTime = 5000;
+let pollingTimer;
+
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOMContentLoaded");
 
@@ -26,6 +29,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const globeView = new GlobeView();
 
   sidebar.addEventListener("onDeviceSelected", (e) => {
+    clearTimeout(pollingTimer);
+
     const selectedDevice = e.id;
     sidebar.showLoading();
     Promise.all([
@@ -59,9 +64,51 @@ document.addEventListener("DOMContentLoaded", function () {
       globeView.goToDevice(selectedDevice);
     });
 
-    fetchMessagesForDevice(selectedDevice, (deviceEnvData) => {
+    fetchMessagesForDevice(selectedDevice).then((deviceEnvData) => {
       sidebar.setDataInfo("Env", deviceEnvData);
     });
+  });
+
+  sidebar.addEventListener("onDeviceSelectedLongPress", (e) => {
+    clearTimeout(pollingTimer);
+    const update = (selectedDevice) => {
+      clearTimeout(pollingTimer);
+      pollingTimer = setTimeout(async () => {
+        await Promise.all([
+          fetchRawDevice(selectedDevice),
+          fetchDeviceLastLocation(selectedDevice),
+          fetchMessagesForDevice(selectedDevice),
+        ]).then((result) => {
+          const [rawResult, lastLocationResult, deviceEnvData] = result;
+          const {
+            items: [rawDeviceJSON],
+          } = rawResult;
+          const {
+            items: [deviceLocationJSON],
+          } = lastLocationResult;
+
+          sidebar.setDataInfo("Env", deviceEnvData);
+
+          if (deviceLocationJSON) {
+            globeView.updateDeviceMarker(
+              Device.fromDeviceLocationJSON(rawDeviceJSON, deviceLocationJSON)
+            );
+            sidebar.setDataInfo("Location", deviceLocationJSON);
+          } else if (deviceLocationJSON === undefined) {
+            fetchDeviceLastLocation_LEGACY(selectedDevice).then(
+              (legacyLocationResult) => {
+                sidebar.setDataInfo(
+                  "Location",
+                  parseLegacLocationHistory(legacyLocationResult)
+                );
+              }
+            );
+          }
+          update(selectedDevice);
+        });
+      }, 5000);
+    };
+    update(e.id);
   });
 
   globeView.onload(() => {

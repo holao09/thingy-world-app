@@ -29,7 +29,7 @@
   cursor: pointer;
 }
 .sidebar .sidebar-toggle:hover {
-  background-color: #FEA512;
+  background-color: #fea512;
 }
 .sidebar .sidebar-toggle div {
   width: 16px;
@@ -41,12 +41,13 @@
   display: inline-block;
   transition: 500ms all;
 }
-.sidebar .sidebar-toggle div:before, .sidebar .sidebar-toggle div:after {
+.sidebar .sidebar-toggle div:before,
+.sidebar .sidebar-toggle div:after {
   transition: 500ms all;
   content: "";
   width: 16px;
   height: 1px;
-  background-color: #FFF;
+  background-color: #fff;
   display: inline-block;
   position: absolute;
 }
@@ -88,7 +89,7 @@
 .sidebar .sidebar-heading {
   font-family: "Overpass";
   font-size: 18px;
-  color: #65CDF5;
+  color: #65cdf5;
   letter-spacing: 0.43px;
   line-height: 20px;
   font-weight: 500;
@@ -102,14 +103,18 @@
   margin-top: 50px;
 }
 .sidebar .data-display .device-info .device-location-name {
-  border-bottom: 1px solid #65CDF5;
+  border-bottom: 1px solid #65cdf5;
   margin-bottom: 30px;
 }
 .sidebar .data-display .device-info .device-location-name img {
   width: 20px;
   margin: 0 5px -3px 0;
 }
-.sidebar .data-display .device-info .device-location-name .device-location-name-label {
+.sidebar
+  .data-display
+  .device-info
+  .device-location-name
+  .device-location-name-label {
   font-size: 18px;
   line-height: 27px;
   color: #244567;
@@ -125,8 +130,8 @@
 .sidebar .data-display .device-data__datum {
   padding: 10px 15px;
   margin: 12px auto 20px;
-  background: #FBFBFB;
-  box-shadow: 0 -2px 4px 0 #FFFFFF, 0 2px 4px 0 #EAEAEA;
+  background: #fbfbfb;
+  box-shadow: 0 -2px 4px 0 #ffffff, 0 2px 4px 0 #eaeaea;
 }
 .sidebar .data-display .device-data__datum .datum-info {
   font-size: 35px;
@@ -158,7 +163,7 @@
 .sidebar .device-list-block .device-list li a {
   text-decoration: none;
   font-size: 16px;
-  color: #B8C5CB;
+  color: #b8c5cb;
   letter-spacing: 0.41px;
   line-height: 18px;
 }
@@ -174,8 +179,14 @@
 .sidebar .device-list-block .device-list li a.connected:after {
   background-color: #7fe57f;
 }
-.sidebar .device-list-block .device-list li.active a, .sidebar .device-list-block .device-list li:hover a {
+.sidebar .device-list-block .device-list li.active a,
+.sidebar .device-list-block .device-list li:hover a {
   color: #244567;
+}
+
+.sidebar .device-list-block .device-list li.activeHold a,
+.sidebar .device-list-block .device-list {
+  color: #65cdf5;
 }
 
 .mobile-sidebar {

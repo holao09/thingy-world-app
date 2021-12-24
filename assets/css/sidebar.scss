@@ -184,6 +184,9 @@
         &:hover a {
           color: $darkBlue;
         }
+        &.activeHold a {
+          color: $lightBlue;
+        }
       }
     }
   }

@@ -1,4 +1,5 @@
 class SidebarView extends EventTarget {
+  isPressed = false;
   constructor() {
     super();
     this.isOpen = true;
@@ -30,19 +31,39 @@ class SidebarView extends EventTarget {
     deviceAnchor.className = device.connected;
     deviceAnchor.id = device.id;
     deviceAnchor.innerText = device.name;
-    deviceAnchor.onclick = (e) => {
-      const event = new CustomEvent("onDeviceSelected");
+    deviceAnchor.addEventListener("long-press", (e) => {
+      this.isPressed = true;
+      this.clearActiveElements();
+      listEntry.className = "activeHold";
+      const event = new CustomEvent("onDeviceSelectedLongPress");
       event.id = e.currentTarget.id;
       this.dispatchEvent(event);
-      for (let i = 0; i < this.DOM.deviceList.children.length; i++) {
-        this.DOM.deviceList.children[i].classList.remove("active");
+    });
+    deviceAnchor.onmouseup = () => {
+      if (this.isPressed === true) {
+        this.isPressed = false;
       }
-      listEntry.className = "active";
+    };
+    deviceAnchor.onclick = (e) => {
+      if (this.isPressed === false) {
+        this.clearActiveElements();
+        listEntry.className = "active";
+        const event = new CustomEvent("onDeviceSelected");
+        event.id = e.currentTarget.id;
+        this.dispatchEvent(event);
+      }
     };
 
     listEntry.appendChild(deviceAnchor);
     this.DOM.deviceList.appendChild(listEntry);
     this.DOM.sidebarHeading.innerText = `All Devices (${this.DOM.deviceList.childElementCount})`;
+  }
+
+  clearActiveElements() {
+    for (let i = 0; i < this.DOM.deviceList.children.length; i++) {
+      this.DOM.deviceList.children[i].classList.remove("active");
+      this.DOM.deviceList.children[i].classList.remove("activeHold");
+    }
   }
 
   showLoading(locationData = true, environmentalData = true) {
@@ -95,7 +116,7 @@ class SidebarView extends EventTarget {
       $(".device-data__datum.uncertainty .datum-timestamp").html(
         uncertainty ? `updated ${updatedTime}` : "No update"
       );
-      console.log("This is message", message);
+
       this.DOM.coordinates.innerHTML =
         lat && lon
           ? `${(+lat).toFixed(4)}, ${(+lon).toFixed(4)}`

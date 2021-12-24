@@ -88,7 +88,7 @@ function fetchDevices(callback) {
   });
 }
 
-function fetchMessagesForDevice(deviceId, callback) {
+function fetchMessagesForDevice(deviceId) {
   return Promise.all([
     $.ajax(
       getAjaxSettings(
@@ -103,7 +103,8 @@ function fetchMessagesForDevice(deviceId, callback) {
   ]).then((result) => {
     const tempData = result[0].items && result[0].items[0];
     const humidData = result[1].items && result[1].items[0];
-    callback({
+
+    return {
       Temperature: {
         data: tempData.message.data,
         timestamp: tempData.receivedAt,
@@ -112,7 +113,7 @@ function fetchMessagesForDevice(deviceId, callback) {
         data: humidData.message.data,
         timestamp: humidData.receivedAt,
       },
-    });
+    };
   });
 }
 
